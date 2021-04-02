@@ -21,7 +21,7 @@ class DeployTest extends TestCase
     /**
      * setUp from PHPUnit
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         ob_start();
         $this->console = Console::getInstance();
@@ -36,7 +36,7 @@ class DeployTest extends TestCase
     /**
      * tearDown from PHPUnit
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         if (file_exists($this->deployFile)) {
             unlink($this->deployFile);
@@ -119,13 +119,13 @@ class DeployTest extends TestCase
         if (class_exists('ZipArchive')) {
             $zip = new \ZipArchive;
             $this->assertTrue($zip->open($this->deployFile));
-            $this->assertInternalType('int', $zip->locateName('composer.json'));
+            $this->assertIsInt($zip->locateName('composer.json'));
             // check if .gitignore is working correctly
             $this->assertFalse($zip->locateName('config/autoload/local.php'));
             // check if the test folders in vendor are excluded
             $this->assertFalse($zip->getFromName('vendor/zendframework/zf2/test/README.md'));
             // check if composer has been executed correctly
-            $this->assertInternalType('int', $zip->locateName('vendor/autoload.php'));
+            $this->assertIsInt($zip->locateName('vendor/autoload.php'));
             $zip->close();
         }
     }
@@ -169,8 +169,8 @@ class DeployTest extends TestCase
         if (class_exists('ZipArchive')) {
             $zip = new \ZipArchive;
             $this->assertTrue($zip->open($this->deployFile));
-            $this->assertInternalType('int', $zip->locateName('deployment.xml'));
-            $this->assertInternalType('int', $zip->locateName('data/composer.json'));
+            $this->assertIsInt($zip->locateName('deployment.xml'));
+            $this->assertIsInt($zip->locateName('data/composer.json'));
             $zip->close();
         }
     }
@@ -203,7 +203,7 @@ class DeployTest extends TestCase
         $this->tmpDir = sys_get_temp_dir() . '/' . uniqid('testZfDeploy');
         $zip->extractTo($this->tmpDir);
         $this->assertFileExists($this->tmpDir . '/module/Application/Module.php');
-        $this->assertFileNotExists($this->tmpDir . '/module/Test/Module.php');
+        $this->assertFileDoesNotExist($this->tmpDir . '/module/Test/Module.php');
         $config = include $this->tmpDir . '/config/application.config.php';
         $this->assertEquals($config['modules'], ['ZfcBase', 'ZfcUser', 'Application']);
     }
@@ -230,7 +230,7 @@ class DeployTest extends TestCase
         $this->tmpDir = sys_get_temp_dir() . '/' . uniqid('testZfDeploy');
         $zip->extractTo($this->tmpDir);
         $this->assertFileExists($this->tmpDir . '/vendor/README.md');
-        $this->assertFileNotExists($this->tmpDir . '/vendor/autoload.php');
+        $this->assertFileDoesNotExist($this->tmpDir . '/vendor/autoload.php');
     }
 
     /**
@@ -254,7 +254,7 @@ class DeployTest extends TestCase
         $this->assertTrue($zip->open($this->deployFile));
         $this->tmpDir = sys_get_temp_dir() . '/' . uniqid('testZfDeploy');
         $zip->extractTo($this->tmpDir);
-        $this->assertFileNotExists($this->tmpDir . '/vendor');
+        $this->assertFileDoesNotExist($this->tmpDir . '/vendor');
     }
 
     /**
@@ -391,7 +391,7 @@ class DeployTest extends TestCase
         $this->deployFile = __DIR__ . '/TestAsset/build.zip';
         $route->match(['build', $this->deployFile, '--target', __DIR__ . '/TestAsset']);
         $this->assertNotEquals(0, $deploy($route, $this->console));
-        $this->assertContains('does not contain a standard ZF2 application', ob_get_contents());
+        $this->assertStringContainsString('does not contain a standard ZF2 application', ob_get_contents());
     }
 
     /**

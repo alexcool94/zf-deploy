@@ -321,7 +321,7 @@ class Deploy
         foreach ($modules as $module) {
             $normalized = str_replace('\\', '/', $module);
             if (! is_dir($target . '/module/' . $normalized)) {
-                $this->exitCode = self::ERROR_MISSING_MODULE;
+                $this->exitCode = self::ERROR_MISSING_APP_MODULE;
                 return $this->reportError(sprintf('Error: the module "%s" does not exist in %s', $module, $target));
             }
         }
